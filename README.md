@@ -1,26 +1,50 @@
 # OUTD-2-ACLOG
 
-Converts OutD ADIF log files to ACLOG (N3FJP) ADIF parseable log files
+Converts OutD ADIF log files to ACLOG (N3FJP) ADIF parsable log files
 
 ## Build Dependencies
 
-OUTD-2-ACLOG is typically used on Windows machines since ACLOG is a Windows-only program, but it can run on any machine which supports Python.
+OUTD-2-ACLOG is typically used on Windows machines since ACLOG is a Windows-only program, but it can run on any machine
+which supports Python.
 
-1.  [Python](https://www.python.org/downloads/) 
+1. [Python](https://www.python.org/downloads/)
 2. [Pip](https://pip.pypa.io/en/stable/installing/)
 3. Tkinter
+
+```shell
+pip install -r requirements.txt
 ```
-pip install tk
+
+4. (OPTIONAL) To build an exe you will need [Pyinstaller](https://www.pyinstaller.org/downloads.html)
+
+```shell
+pip install -r requirements-build.txt
 ```
-4. (OPTIONAL) To build an exe for Windows, you will need [Pyinstaller](https://www.pyinstaller.org/downloads.html)
 
 ## Run
+
+As a Script:
+
+```shell
+python launch.py
 ```
-> python outd2aclog.py
+
+As a Python Module:
+
+```shell
+python -m outd2aclog
 ```
 
 ## Build Window EXE
 
+Easy mode:
+
+```shell
+python setup.py build
 ```
-pyinstaller --onefile --noconsole --icon outd2aclogicon.ico outd2aclog.py
+
+Manual build:
+
+```shell
+pyinstaller --name outd2aclog --onefile --noconsole --icon outd2aclogicon.ico launch.py
 ```
