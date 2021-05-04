@@ -46,5 +46,5 @@ python setup.py build
 Manual build:
 
 ```shell
-pyinstaller --name outd2aclog --onefile --noconsole --icon outd2aclogicon.ico launch.py
+pyinstaller --name outd2aclog --onefile --noconsole --icon outd2aclog\static\outd2aclogicon.ico launch.py
 ```
