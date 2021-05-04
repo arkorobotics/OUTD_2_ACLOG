@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from codecs import open
+from os import name as os_name
 from os.path import (abspath, dirname, join)
 from subprocess import call
 
@@ -45,8 +46,10 @@ class RunBuild(Command):
 
     def run(self):
         """Run pyinstaller build."""
-        err_no = call(['pyinstaller', '--name', 'outd2aclog', '--onefile',
-                       '--noconsole', '--icon', 'outd2aclogicon.ico', 'launch.py'])
+        static_sep = ';' if os_name == 'nt' else ':'  # On Windows pyinstaller needs the separator to be ';'
+        err_no = call(['pyinstaller', '--name', 'outd2aclog', '--onefile', '--noconsole',
+                       '--add-data', 'outd2aclog/static/*{}outd2aclog/static/'.format(static_sep),
+                       '--icon', 'outd2aclog/static/outd2aclogicon.ico', 'launch.py'])
         raise SystemExit(err_no)
 
 
@@ -75,6 +78,7 @@ setup(
         'Tracker': 'https://github.com/arkorobotics/OUTD_2_ACLOG/issues',
     },
     packages=find_packages(exclude=['docs', 'tests*']),
+    include_package_data=True,
     install_requires=[
         'tk==0.1.0',
     ],
