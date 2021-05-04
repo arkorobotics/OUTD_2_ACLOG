@@ -5,7 +5,7 @@
 # Converts OutD ADIF log files to ACLOG (N3FJP) ADIF parseable log files
 
 from argparse import ArgumentParser
-from tkinter import (Tk, StringVar, Label, Button, Entry, OptionMenu, E, W)
+from tkinter import (Tk, PhotoImage, StringVar, Label, Button, Entry, OptionMenu, E, W)
 from tkinter import filedialog
 
 from .version import __version__
@@ -36,8 +36,8 @@ def open_file(local, input_filename):
         for line in fin:
 
             if len(local['comment'].get()) == 0:
-                # new_line = line.replace('QSPMSG', 'COMMENT')
-                new_line = line.replace('<EOR>',
+                new_line = line.replace('QSPMSG', 'COMMENT')
+                new_line = new_line.replace('<EOR>',
                                         '<OTHER:4>' + local['other'].get() + '<MY_GRIDSQUARE:4>' +
                                         local['grid'].get() + '<EOR>')
             else:
@@ -68,8 +68,8 @@ def main():
     window.resizable(0, 0)
 
     # If you wish to build an executable with the OUTD-2-ACLOG icon, uncomment and modify the following two lines:
-    # icon = PhotoImage(file = r"[absolute file path here]\outd2aclogicon.png")
-    # window.iconphoto(False, icon)
+    #icon = PhotoImage(file = r"C:\Users\[userpath]\OUTD_2_ACLOG\outd2aclogicon.png")
+    #window.iconphoto(False, icon)
 
     # local stores mutable data that is used by different parts of the GUI
     local = {
