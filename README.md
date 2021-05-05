@@ -2,6 +2,8 @@
 
 Converts OutD ADIF log files to ACLOG (N3FJP) ADIF parsable log files
 
+![OUTD-2-ACLOG Screenshot](outd2aclog/static/outd2aclog_screenshot.png)
+
 ## Build Dependencies
 
 OUTD-2-ACLOG is typically used on Windows machines since ACLOG is a Windows-only program, but it can run on any machine
