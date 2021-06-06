@@ -11,6 +11,7 @@ from tkinter import filedialog
 from .static import static_file
 from .version import __version__
 
+import re
 
 def browse_files(local):
     filename = filedialog.askopenfilename(initialdir="/",
@@ -32,15 +33,47 @@ def open_file(local, input_filename):
         local['label_file_explorer'].configure(text="  Invalid File!        ")
     else:
         output_filename = input_filename.replace("OutdLog-", "ACLOG-")
+        output_filename = output_filename[:len(output_filename)-1]    # Make the .adif into .adi
         fout = open(output_filename, 'w+')
 
         for line in fin:
 
             if len(local['comment'].get()) == 0:
                 new_line = line.replace('QSPMSG', 'COMMENT')
+
+                # If left blank, auto-comment "SOTA [summit]" for regular chasers and "SOTA [summit] - S2S - [summit]" for S2S
+
+                # Read My SOTA Reference
+                msr = re.compile(r'<MY_SOTA_REF:\d+>([^<>]*?)<')
+                msr_match = msr.search(new_line)
+
+                if msr_match is None:
+                    my_sota_ref = ""
+                else:
+                    my_sota_ref = msr_match.group(1)
+
+                # Read Other SOTA Reference if S2S
+                sr = re.compile(r'<SOTA_REF:\d+>([^<>]*?)<')
+                sr_match = sr.search(new_line)
+
+                if sr_match is None:
+                    sota_ref = ""
+                else:
+                    sota_ref = sr_match.group(1)
+
+                # Generate auto-comment
+                if len(sota_ref) == 0:
+                    # Regular SOTA contact
+                    autocomment = "SOTA " + my_sota_ref
+                else:
+                    # S2S
+                    autocomment = "SOTA " + my_sota_ref + " - S2S - " + sota_ref
+
                 new_line = new_line.replace('<EOR>',
                                             '<OTHER:4>' + local['other'].get() + '<MY_GRIDSQUARE:4>' +
-                                            local['grid'].get() + '<EOR>')
+                                            local['grid'].get() + 
+                                            '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
+                                            '<EOR>')
             else:
                 new_line = line.replace('<EOR>',
                                         '<OTHER:4>' + local['other'].get() + '<MY_GRIDSQUARE:4>' + local['grid'].get() +
@@ -68,8 +101,8 @@ def main():
     window.title('OUTD 2 ACLOG')
     window.resizable(0, 0)
 
-    icon = PhotoImage(file=static_file('outd2aclogicon.png'))
-    window.iconphoto(False, icon)
+    #icon = PhotoImage(file=static_file('outd2aclogicon.png'))
+    #window.iconphoto(False, icon)
 
     # local stores mutable data that is used by different parts of the GUI
     local = {
