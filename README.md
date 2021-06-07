@@ -12,6 +12,7 @@ which supports Python.
 1. [Python](https://www.python.org/downloads/)
 2. [Pip](https://pip.pypa.io/en/stable/installing/)
 3. Tkinter
+4. Tkmacosx
 
 ```shell
 pip install -r requirements.txt

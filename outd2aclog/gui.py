@@ -7,7 +7,10 @@
 from argparse import ArgumentParser
 from tkinter import (Tk, PhotoImage, StringVar, Label, Button, Entry, OptionMenu, E, W)
 from tkinter import filedialog
-from tkmacosx import *
+from sys import platform
+
+if platform == "darwin":
+    from tkmacosx import *
 
 from .static import static_file
 from .version import __version__
@@ -39,47 +42,103 @@ def open_file(local, input_filename):
 
         for line in fin:
 
-            if len(local['comment'].get()) == 0:
-                new_line = line.replace('QSPMSG', 'COMMENT')
+            # Read My SOTA Reference
+            msr = re.compile(r'<MY_SOTA_REF:\d+>([^<>]*?)<')
+            msr_match = msr.search(line)
 
-                # If left blank, auto-comment "SOTA [summit]" for regular chasers and "SOTA [summit] - S2S - [summit]" for S2S
-
-                # Read My SOTA Reference
-                msr = re.compile(r'<MY_SOTA_REF:\d+>([^<>]*?)<')
-                msr_match = msr.search(new_line)
-
-                if msr_match is None:
-                    my_sota_ref = ""
-                else:
-                    my_sota_ref = msr_match.group(1)
-
-                # Read Other SOTA Reference if S2S
-                sr = re.compile(r'<SOTA_REF:\d+>([^<>]*?)<')
-                sr_match = sr.search(new_line)
-
-                if sr_match is None:
-                    sota_ref = ""
-                else:
-                    sota_ref = sr_match.group(1)
-
-                # Generate auto-comment
-                if len(sota_ref) == 0:
-                    # Regular SOTA contact
-                    autocomment = "SOTA " + my_sota_ref
-                else:
-                    # S2S
-                    autocomment = "SOTA " + my_sota_ref + " - S2S - " + sota_ref
-
-                new_line = new_line.replace('<EOR>',
-                                            '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' +
-                                            local['grid'].get() + 
-                                            '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
-                                            '<EOR>')
+            if msr_match is None:
+                my_sota_ref = ""
             else:
-                new_line = line.replace('<EOR>',
-                                        '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() +
-                                        '<COMMENT:' + str(len(local['comment'].get())) + '>' + local['comment'].get() +
-                                        '<EOR>')
+                my_sota_ref = msr_match.group(1)
+
+            # Read Contact SOTA Reference
+            sr = re.compile(r'<SOTA_REF:\d+>([^<>]*?)<')
+            sr_match = sr.search(line)
+
+            if sr_match is None:
+                sota_ref = ""
+            else:
+                sota_ref = sr_match.group(1)
+
+            # Check for QSPMSG
+            qm = re.compile(r'QSPMSG')
+            qm_match = qm.search(line)
+
+            if qm_match is None:
+                qm_override = False
+            else:
+                qm_override = True
+
+            # Determine if SOTA, S2S, or Chase
+            if (len(my_sota_ref) == 0) and (len(sota_ref) > 0):
+                # SOTA Chaser log entry
+                sota_type = "CHASE"
+            elif (len(my_sota_ref) > 0) and (len(sota_ref) == 0):
+                # SOTA Activator log entry
+                sota_type = "SOTA"
+            else:
+                # Summit to Summit
+                sota_type = "S2S"
+
+            # If the comment field is not populated
+            if len(local['comment'].get()) == 0:
+
+                # Check for OutD QSPMSG field and change to COMMENT field
+                if qm_override == True:
+                    new_line = line.replace('QSPMSG', 'COMMENT')
+                    if sota_type == "CHASE":
+                        new_line = new_line.replace('<EOR>',
+                                            '<OTHER:5>CHASE<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<EOR>')
+                    else:
+                        new_line = new_line.replace('<EOR>',
+                                            '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<EOR>')
+
+                # If QSPMSG is not provided, generate auto-comment
+                else:
+                    # Generate auto-comment
+                    if sota_type == "CHASE":
+                        # SOTA CHASE
+                        autocomment = "SOTA CHASE " + sota_ref
+                        new_line = line.replace('<EOR>',
+                                                    '<OTHER:5>CHASE<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
+                                                    '<EOR>')
+                    elif sota_type == "SOTA":
+                        # SOTA
+                        autocomment = "SOTA " + my_sota_ref
+                        new_line = line.replace('<EOR>',
+                                                    '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
+                                                    '<EOR>')
+                    elif sota_type == "S2S":
+                        # S2S
+                        autocomment = "SOTA " + my_sota_ref + " - S2S - " + sota_ref
+                        new_line = line.replace('<EOR>',
+                                                    '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
+                                                    '<EOR>')
+                    else:
+                        # Error
+                        autocomment = "Unreachable Error!"
+                        new_line = line.replace('<EOR>',
+                                                    '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
+                                                    '<EOR>')
+
+            # If the comment field is populated, overwrite all COMMENT fields with field value
+            else:
+                if sota_type == "CHASE":
+                    new_line = line.replace('<EOR>',
+                                            '<OTHER:5>CHASE<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<COMMENT:' + str(len(local['comment'].get())) + '>' + local['comment'].get() +
+                                            '<EOR>')
+                else:
+                    new_line = line.replace('<EOR>',
+                                            '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<COMMENT:' + str(len(local['comment'].get())) + '>' + local['comment'].get() +
+                                            '<EOR>')
 
             fout.write(new_line)
 

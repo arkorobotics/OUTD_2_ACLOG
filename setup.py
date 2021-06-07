@@ -81,6 +81,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'tk==0.1.0',
+        'tkmacosx==1.0.3',
     ],
     python_requires='~=3.9',
     extras_require={
