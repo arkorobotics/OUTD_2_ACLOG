@@ -7,6 +7,7 @@
 from argparse import ArgumentParser
 from tkinter import (Tk, PhotoImage, StringVar, Label, Button, Entry, OptionMenu, E, W)
 from tkinter import filedialog
+from tkmacosx import *
 
 from .static import static_file
 from .version import __version__
@@ -70,13 +71,13 @@ def open_file(local, input_filename):
                     autocomment = "SOTA " + my_sota_ref + " - S2S - " + sota_ref
 
                 new_line = new_line.replace('<EOR>',
-                                            '<OTHER:4>' + local['other'].get() + '<MY_GRIDSQUARE:4>' +
+                                            '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' +
                                             local['grid'].get() + 
                                             '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
                                             '<EOR>')
             else:
                 new_line = line.replace('<EOR>',
-                                        '<OTHER:4>' + local['other'].get() + '<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                        '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() +
                                         '<COMMENT:' + str(len(local['comment'].get())) + '>' + local['comment'].get() +
                                         '<EOR>')
 
@@ -108,12 +109,9 @@ def main():
     local = {
         'filename': "",
         'grid': StringVar(),
-        'other': StringVar(),
         'comment': StringVar(),
         'label_file_explorer': Label(window, text="Select OutD ADIF file:"),
     }
-
-    local['other'].set("SOTA")
 
     button_explore = Button(window,
                             text="Browse Files",
@@ -121,9 +119,6 @@ def main():
 
     grid_label = Label(window, text='My 4-Digit Gridsqure: ')
     grid_entry = Entry(window, textvariable=local['grid'])
-
-    otherfield_label = Label(window, text='Type: ', )
-    otherfield_drop = OptionMenu(window, local['other'], "SOTA", "CHASE")
 
     comment_label = Label(window, text='Comment: ')
     comment_entry = Entry(window, textvariable=local['comment'])
@@ -138,9 +133,6 @@ def main():
 
     grid_label.grid(row=3, column=0, sticky=E)
     grid_entry.grid(row=3, column=1, sticky=W)
-
-    otherfield_label.grid(row=4, column=0, sticky=E)
-    otherfield_drop.grid(row=4, column=1, sticky=W)
 
     comment_label.grid(row=5, column=0, sticky=E)
     comment_entry.grid(row=5, column=1, sticky=W)
