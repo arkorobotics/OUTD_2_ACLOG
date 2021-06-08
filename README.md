@@ -8,16 +8,17 @@ Converts OutD ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable log files.
 
 ![OUTD-2-ACLOG Mac Screenshot](outd2aclog/static/outd2aclog_mac_screenshot.png)
 
-Steps:
+<h3>Steps:</h3>
+
 1. Click "Browse Files" and select the OutD ADIF log file
 2. Enter your 4 digit gridsquare in the "My 4-Digit Gridsquare" field
-3. The "Comment" field works in three different ways
-    a. If you write anything in this field, outd2aclog will overwrite all COMMENT fields in the ADI with the value entered.  
-    b. If you enabled OutD QSPMSG, leaving this field blank will convert all QSPMSG fields to COMMENT fields in the ADI.
-    c. If you disabled OutD QSPMSG, leaving this field blank will auto-generate a comment with the following format:
-        SOTA Activator log entry: "SOTA \[my summit reference\]"
-        SOTA Chaser log entry "SOTA CHASE \[other summit reference\]"
-        SOTA S2S log entry: "SOTA \[summit reference\] - S2S - \[other summit reference\]"
+3. The "Comment" field works in three different ways <br>
+    * If you write anything in this field, outd2aclog will overwrite all COMMENT fields in the ADI with the value entered. <br>
+    * If you enabled OutD QSPMSG, leaving this field blank will convert all QSPMSG fields to COMMENT fields in the ADI. <br>
+    * If you disabled OutD QSPMSG, leaving this field blank will auto-generate a comment with the following format: <br>
+        * SOTA Activator log entry: "SOTA \[my summit reference\]" <br>
+        * SOTA Chaser log entry "SOTA CHASE \[other summit reference\]" <br>
+        * SOTA S2S log entry: "SOTA \[summit reference\] - S2S - \[other summit reference\]" <br>
 
 
 ## Build Dependencies
