@@ -127,7 +127,7 @@ def open_file(local, input_filename):
                                                     '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
                                                     '<EOR>')
 
-            # If the comment field is populated, overwrite all COMMENT fields with field value
+            # If the GUI Comment field is populated, overwrite all the ADI COMMENT fields with the value
             else:
                 if sota_type == "CHASE":
                     new_line = line.replace('<EOR>',
@@ -176,7 +176,7 @@ def main():
                             text="Browse Files",
                             command=lambda: browse_files(local))
 
-    grid_label = Label(window, text='My 4-Digit Gridsqure: ')
+    grid_label = Label(window, text='My 4-Digit Gridsquare: ')
     grid_entry = Entry(window, textvariable=local['grid'])
 
     comment_label = Label(window, text='Comment: ')
