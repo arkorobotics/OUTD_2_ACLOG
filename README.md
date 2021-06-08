@@ -19,7 +19,7 @@ Converts OutD ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable log files.
         * SOTA Activator log entry: "SOTA \[my summit reference\]" <br>
         * SOTA Chaser log entry "SOTA CHASE \[other summit reference\]" <br>
         * SOTA S2S log entry: "SOTA \[summit reference\] - S2S - \[other summit reference\]" <br>
-
+4. Click the "Convert" button to create the converted log file! Note: Outd2aclog will generate a new ADI log file which follows the naming convention of the original OutD filename (i.e. - "OutdLog-YYYYMMDD.adif" will generate "ACLOG-YYYYMMDD.adi")
 
 ## Build Dependencies
 
