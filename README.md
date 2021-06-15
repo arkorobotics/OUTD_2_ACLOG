@@ -1,6 +1,6 @@
 # OUTD-2-ACLOG
 
-Converts OutD and HAMRS ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable log files.
+This project originally started out as a useful tool for converting OutD (SOTA logging iPhone app) ADIF files to ACLOG (N3FJP logging software) ADI log files. At the time, there were some compatibility issues with importing OutD log files to ACLOG, so the app made sense, but now days those issues have been resolved. OUTD2ACLOG is now used to autogenerate/autofill `COMMENT` and `MY_GRIDSQAURE` fields for both OutD and HAMRS ADIF log files. The modified log files can then be imported to ACLOG (N3FJP) or qrz.com. Needless to say, this program is highly customized for a very specific use case... and user. Feel free to modify program to match your own logging needs or just as-is!
 
 ![OUTD-2-ACLOG Workflow](outd2aclog/static/OUTD2ACLOG_Workflow.png)
 
@@ -10,8 +10,8 @@ Converts OutD and HAMRS ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable 
 
 <h3>Steps:</h3>
 
-1. Click "Browse Files" and select the OutD ADIF log file
-2. Enter your 4 digit gridsquare in the "My 4-Digit Gridsquare" field
+1. Click "Browse Files" and select the OutD or HAMRS ADIF log file
+2. Enter your gridsquare in the "My Gridsquare" field for OutD log files. Note: This field is ignored if the log file type is HAMRS. The HAMRS app automatically populates the MY_GRIDSQUARE field.
 3. The "Comment" field works in three different ways <br>
     * If you write anything in this field, outd2aclog will overwrite all COMMENT fields in the ADI with the value entered. <br>
     * If you enabled OutD QSPMSG, leaving this field blank will convert all QSPMSG fields to COMMENT fields in the ADI. <br>
@@ -23,8 +23,7 @@ Converts OutD and HAMRS ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable 
 
 ## Build Dependencies
 
-OUTD-2-ACLOG is typically used on Windows machines since ACLOG is a Windows-only program, but it can run on any machine
-which supports Python.
+OUTD-2-ACLOG is typically used on Windows machines since ACLOG is a Windows-only program, but can run on any machine which supports Python.
 
 1. [Python](https://www.python.org/downloads/)
 2. [Pip](https://pip.pypa.io/en/stable/installing/)

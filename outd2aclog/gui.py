@@ -64,6 +64,18 @@ def open_file(local, input_filename):
             local['label_file_explorer'].configure(text="  Invalid File!        ")
             return
     
+    # Prepare MY_GRIDSQUARE field
+    if local['filetype'] == "OUTD":
+        # Add the MY_GRIDSQAURE field if the input file is an OutD Log
+        if len(local['grid'].get()) != 0:
+            mygridsquare_field = '<MY_GRIDSQUARE:' + str(len(local['grid'].get())) + '>' + local['grid'].get()
+        else:
+            mygridsquare_field = ''
+    else:
+        # Don't add the MY_GRIDSQUARE field otherwise (HAMRS does this automatically)
+        mygridsquare_field = ''
+
+
     # Variables used for HAMRS Parsing
     line = ""
     line_ready = False
@@ -146,11 +158,11 @@ def open_file(local, input_filename):
                     new_line = line.replace('QSPMSG', 'COMMENT')
                     if sota_type == "CHASE":
                         new_line = new_line.replace('<EOR>',
-                                            '<OTHER:5>CHASE<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<OTHER:5>CHASE' + mygridsquare_field +
                                             '<EOR>')
                     else:
                         new_line = new_line.replace('<EOR>',
-                                            '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<OTHER:4>SOTA' + mygridsquare_field +
                                             '<EOR>')
 
                 # If QSPMSG is not provided, generate auto-comment
@@ -160,28 +172,28 @@ def open_file(local, input_filename):
                         # SOTA CHASE
                         autocomment = "SOTA CHASE " + sota_ref
                         new_line = line.replace('<EOR>',
-                                                    '<OTHER:5>CHASE<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<OTHER:5>CHASE' + mygridsquare_field + 
                                                     '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
                                                     '<EOR>')
                     elif sota_type == "SOTA":
                         # SOTA
                         autocomment = "SOTA " + my_sota_ref
                         new_line = line.replace('<EOR>',
-                                                    '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<OTHER:4>SOTA' + mygridsquare_field + 
                                                     '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
                                                     '<EOR>')
                     elif sota_type == "S2S":
                         # S2S
                         autocomment = "SOTA " + my_sota_ref + " - S2S - " + sota_ref
                         new_line = line.replace('<EOR>',
-                                                    '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<OTHER:4>SOTA' + mygridsquare_field + 
                                                     '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
                                                     '<EOR>')
                     else:
                         # Error
                         autocomment = "Unreachable Error!"
                         new_line = line.replace('<EOR>',
-                                                    '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() + 
+                                                    '<OTHER:4>SOTA' + mygridsquare_field + 
                                                     '<COMMENT:' + str(len(autocomment)) + '>' + autocomment +
                                                     '<EOR>')
 
@@ -189,12 +201,12 @@ def open_file(local, input_filename):
             else:
                 if sota_type == "CHASE":
                     new_line = line.replace('<EOR>',
-                                            '<OTHER:5>CHASE<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<OTHER:5>CHASE' + mygridsquare_field +
                                             '<COMMENT:' + str(len(local['comment'].get())) + '>' + local['comment'].get() +
                                             '<EOR>')
                 else:
                     new_line = line.replace('<EOR>',
-                                            '<OTHER:4>SOTA<MY_GRIDSQUARE:4>' + local['grid'].get() +
+                                            '<OTHER:4>SOTA' + mygridsquare_field +
                                             '<COMMENT:' + str(len(local['comment'].get())) + '>' + local['comment'].get() +
                                             '<EOR>')
 
@@ -235,7 +247,7 @@ def main():
                             text="Browse Files",
                             command=lambda: browse_files(local))
 
-    grid_label = Label(window, text='My 4-Digit Gridsquare: ')
+    grid_label = Label(window, text='My Gridsquare: ')
     grid_entry = Entry(window, textvariable=local['grid'])
 
     comment_label = Label(window, text='Comment: ')
