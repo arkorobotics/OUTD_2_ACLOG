@@ -1,6 +1,6 @@
 # OUTD-2-ACLOG
 
-Converts OutD ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable log files.
+Converts OutD and HAMRS ADIF log files to ACLOG (N3FJP) or qrz.com ADI parsable log files.
 
 ![OUTD-2-ACLOG Workflow](outd2aclog/static/OUTD2ACLOG_Workflow.png)
 
