@@ -19,28 +19,86 @@ import re
 
 def browse_files(local):
     filename = filedialog.askopenfilename(initialdir="/",
-                                          filetypes=[("ADIF files", "*.adif")],
+                                          filetypes=[("ADIF files", "*.adif"), ("ADI files", "*.adi")],
                                           title="Select a File",
                                           )
 
     local['filename'] = filename
-
-    local['label_file_explorer'].configure(text=".." + filename[-25:])
+    local['label_file_explorer'].configure(text=".." + filename[-25:])  # Show preview of filename
 
 
 def open_file(local, input_filename):
     fin = open(input_filename, 'rt')
 
-    try:
-        input_filename.index("OutdLog-")
-    except ValueError:
-        local['label_file_explorer'].configure(text="  Invalid File!        ")
-    else:
-        output_filename = input_filename.replace("OutdLog-", "ACLOG-")
-        output_filename = output_filename[:len(output_filename)-1]    # Make the .adif into .adi
+    if "OutdLog-" in input_filename:                                    # Check to see if file is an OutD log by filename
+        output_filename = input_filename.replace("OutdLog-", "ACLOG-")  #     Note: Checking programid for "Portable Logger" may cause parsing issues
+        output_filename = output_filename[:len(output_filename)-1]      # Change the .adif into .adi
+        local['filetype'] = "OUTD"
+        
         fout = open(output_filename, 'w+')
+    else:
+        for line in fin:                                                # Check to see if the file is a HAMRS log file by programid
+            if '<programid:5>HAMRS' in line:
+                local['filetype'] = "HAMRS"
+                output_filename = input_filename.replace(".adi", "-ACLOG.adi")
+                fout = open(output_filename, 'w+')
 
-        for line in fin:
+                fin.seek(0)                                     # Reset file line pointer
+                fin.readline()                                  # Skip the first line of the HAMRS header (unused info)
+
+                header_line = fin.readline()                    
+                fout.write(header_line[1:len(header_line)])     # Write "adif_ver"
+
+                header_line = fin.readline()                    
+                fout.write(header_line[1:len(header_line)])     # Write "programid"
+
+                header_line = fin.readline()                    
+                fout.write(header_line[1:len(header_line)])     # Write "programversion"
+
+                header_line = fin.readline()                    
+                fout.write(header_line[1:len(header_line)])     # Write "EOH"
+
+                break
+        
+        if local['filetype'] == "Invalid":                              # Invalid File. Abort file parsing and conversion
+            local['label_file_explorer'].configure(text="  Invalid File!        ")
+            return
+    
+    # Variables used for HAMRS Parsing
+    line = ""
+    line_ready = False
+    hamrs_combine_state = False
+
+    # Loop through the log file and parse lines depending on filetype, then convert them to the appropriate formatting 
+    for readline in fin:
+
+        # HAMRS log records are multi-line, so we need to combine them into one line, uppercase the field names then parse them
+        if local['filetype'] == "HAMRS":    
+
+            if hamrs_combine_state == True: # If we are currently combining lines, grab the current line and add it to the line to-be-parsed
+                
+                # Uppercase the field names
+                fieldname = re.search('<(.*):', readline)
+                if fieldname is not None:
+                    readline_uppercased = readline.replace(fieldname.group(1), fieldname.group(1).upper())
+
+                # Combine to current line minus the line return
+                line = line + readline_uppercased[:len(readline_uppercased)-1]
+
+            if readline == '\n':             # Start of record
+                hamrs_combine_state = True
+            elif readline == '<eor>\n':      # End of record
+                hamrs_combine_state = False
+                line = line + '<EOR>\n'
+                line_ready = True            # Combined HAMRS log record line is ready for parsing
+
+        # OutD log records are one line, so the line is always ready for parsing
+        elif local['filetype'] == "OUTD":
+            line = readline
+            line_ready = True               
+
+        # Convert line when the current line is ready
+        if line_ready == True:
 
             # Read My SOTA Reference
             msr = re.compile(r'<MY_SOTA_REF:\d+>([^<>]*?)<')
@@ -141,11 +199,11 @@ def open_file(local, input_filename):
                                             '<EOR>')
 
             fout.write(new_line)
+            line_ready = False
+            line = ""
 
-        fout.close()
-
-        local['label_file_explorer'].configure(text="  Converted successfully!        ")
-
+    fout.close()
+    local['label_file_explorer'].configure(text="  Converted successfully!        ")
     fin.close()
 
 
@@ -169,7 +227,8 @@ def main():
         'filename': "",
         'grid': StringVar(),
         'comment': StringVar(),
-        'label_file_explorer': Label(window, text="Select OutD ADIF file:"),
+        'label_file_explorer': Label(window, text="Select ADIF/ADI file:"),
+        'filetype': "Invalid",
     }
 
     button_explore = Button(window,
